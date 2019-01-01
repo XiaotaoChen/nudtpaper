@@ -44,26 +44,25 @@
 \documentclass[master,otf]{nudtpaper}
 \usepackage{mynudt}
 
-\classification{TP957}
-\serialno{0123456}
+\classification{TP391}
+\serialno{16063284}
 \confidentiality{公开}
-\UDC{}
-\title{国防科大学位论文\LaTeX{}模板\\
-使用手册}
-\displaytitle{国防科技大学学位论文\LaTeX{}模板}
-\author{张三}
+\UDC{004.8}
+\title{分布式深度学习系统中低精度数据\\同步技术的研究与实现}
+\displaytitle{分布式深度学习系统中低精度数据同步技术的研究与实现}
+\author{陈晓涛}
 \zhdate{\zhtoday}
-\entitle{How to Use the \LaTeX{} Document Class for NUDT Dissertations}
-\enauthor{ZHANG San}
+\entitle{A Research of Low Precision Data Synchronization Technology on Distributed Deep Learning System}
+\enauthor{Chen Xiaotao}
 \endate{\entoday}
-\subject{通信与信息工程}
-\ensubject{Information and Communication Engineering}
-\researchfield{自动目标识别与模糊工程}
-\supervisor{李四\quad{}教授}
-\cosupervisor{王五\quad{}副教授} % 没有就空着
-\ensupervisor{Prof. LI Si}
-\encosupervisor{} % 没有就空着
-\papertype{工学}
+\subject{集成电路专业}
+\ensubject{Integrated Circuits}
+\researchfield{分布式深度学习}
+\supervisor{李东升\quad{}研究员}
+\cosupervisor{张钊宁\quad{}助理研究员} % 没有就空着
+\ensupervisor{Prof. Li Dongsheng}
+\encosupervisor{Assistant Prof. Zhang Zhaoning} % 没有就空着
+\papertype{专业学位}
 \enpapertype{Engineering}
 % 加入makenomenclature命令可用nomencl制作符号列表。
 
@@ -86,6 +85,11 @@
 
 %书写正文，可以根据需要增添章节; 正文还包括致谢，参考文献与成果
 \mainmatter
+\input{data/introduction}
+\input{data/related_work}
+\input{data/innovation1.tex}
+\input{data/innovation2.tex}
+\input{data/summary.tex}
 \input{data/chap01}
 \input{data/chap02}
 
@@ -95,7 +99,7 @@
 \phantomsection
 \addcontentsline{toc}{chapter}{参考文献}
 \bibliographystyle{bstutf8}
-\bibliography{ref/refs}
+\bibliography{ref/myrefs}
 
 \input{data/resume}
 % 最后，需要的话还要生成附录，全文随之结束。
