@@ -1,19 +1,19 @@
 \chapter{bf16数据同步方法}
-本章主要介绍bf16数据同步方法的实现原理。并将详细介绍整个框架工作流程和性能优化的相关方法。通过分析不同应用的理论效率和实际效率结果，评估系统的性能。
+本章主要介绍bf16数据同步方法的实现原理。并详细介绍整个框架工作流程和性能优化的相关方法。通过分析不同应用的理论效率和实际效率结果，评估系统的性能。
 \section{引言}
-随着人工智能的快速发展，为提升训练效率，满足生产需求，业界已针对分布式深度学习系统进行了深入的研究。本章希望通过压缩模型梯度数据的方式来减少分布式同步数据过程中的数据传输量，以此减小同步时间开销，提高分布式训练效率。本章将介绍如何在现有高效的分布式通信框架horovod上集成现有主流的深度学习框架，并进一步实现bf16的数据通信方法；介绍通过优化实现方法得到的性能提升，最后通过理论分析和实验结果比较，说明bf16数据同步方式的有效性和实用性。
+随着人工智能的快速发展，为提升训练效率，满足生产需求，业界已针对分布式深度学习系统进行了深入的研究。本章希望通过压缩模型梯度数据的方式来减少分布式同步数据过程中的数据传输量，从而减小同步时间开销，提高分布式训练效率。本章将介绍如何在现有高效的分布式通信框架horovod上集成现有主流的深度学习框架，并进一步实现bf16的数据通信方法；介绍通过优化实现方法得到的性能提升，最后通过理论分析和实验结果比较，说明bf16数据同步方式的有效性和实用性。
 \section{框架设计}
 \subsection{MXNet与Horovod的整合}
-horovod是uber针对tensorflow在分布式深度学习训练中的不足，基于百度提出的ring-allreduce[引用]构建。有3个主要特征[引用horovod]：\\
+horovod是uber针对tensorflow在分布式深度学习训练中的不足，基于百度提出的ring-allreduce构建。有3个主要特征：\\
 1. horovod与深度学习框架相互独立，用户以python包的形式调用horovod的API。使其发展独立于任何深度学习框架，目前horovod已经支持tensorflow和pytorch。这样tensorflow和pytorch用户可以在任意版本的深度学习框架中使用horovod，不需要担心兼容问题。目前MXNet团队已经将MXNet整合进了horovod，正在等待horovod团队整合。\\
-2. 用NCCL取代了百度ring-allreduce实现。NCCL是NVIDIA的通信库，提供高度优化的ring-allreduce实现。通过NCCL的ring-allreduce实现，使得horovod的性能有巨大提升。\\
+2. 用NCCL取代百度ring-allreduce实现。NCCL是NVIDIA的通信库，提供高度优化的ring-allreduce实现。通过NCCL的ring-allreduce实现，使得horovod的性能有巨大提升。\\
 3. 提出tensor fusion方法，通过将多个小的tensor整合成数据量稍大的tensor，进而对这个大的tensor做allreduce。提高了数据的通信效率。\\
 \begin{figure}[htp]
 \centering
 \includegraphics[width=10cm]{horovod_mxnet_integration}
 \caption{MXNet与horovod整合示意图}
 \end{figure}
-horovod中主要涉及两个操作：allreduce和broadcast。其与MXNet的整合示意图如图3.1所示。由图可知，horovod通过继承MXNet的优化器optimizer实现与mxnet的整合，即更新模型时使用horovod的DistributedOptimizer更新。对于MXNet而言，分布式程序只是一个使用DistributedOptimizer优化器更新模型的单机程序。在horovod中，因为其在真正更新之前，会对参数做allreduce来同步全局参数。这种整合方式使得mxnet与horovod可以各自独立发展，而不会产生版本的相互依赖。为保证各个节点中初始化的模型一致, 其提供了一个 broadcast parameters的API用于同步模型初始化的值。\\
+horovod中主要涉及两个操作：allreduce和broadcast。其与MXNet的整合示意图如图3.1所示。由图可知，horovod通过继承MXNet的优化器optimizer实现与MXNet的整合，即更新模型时使用horovod的DistributedOptimizer更新。对于MXNet而言，分布式程序只是一个使用DistributedOptimizer优化器更新模型的单机程序。在horovod中，因为其在真正更新之前，会对参数做allreduce来同步全局参数。这种整合方式使得MXNet与horovod可以各自独立发展，而不会产生版本的相互依赖。为保证各个节点中初始化的模型一致, 其提供了一个broadcast parameters的API用于同步模型初始化的值。\\
 horovod通过对外提供tensor接口，各个深度学习框架通过继承该tensor接口，提供自身的实现即可整合到horovod中。接口如下所示：
 \begin{lstlisting}[language=C, numbers=none]
 Tensor {
@@ -23,7 +23,7 @@ Tensor {
   size();   //  return the total bytes of data;
 }
 \end{lstlisting}
-由上伪代码可知，将深度学习框架整合进horovod只需通过继承tensor这个基类并实现对应的方法即可。而horovod只需通过调用tensor中的对应方法即可完成对数据的同步或。故为将mxnet整合入horovod，其设计如下：
+由上伪代码可知，将深度学习框架整合进horovod只需通过继承tensor这个基类并实现对应的方法即可。而horovod只需通过调用tensor中的对应方法即可完成对数据的同步。故为将MXNet整合入horovod，其设计如下：
 \begin{lstlisting}[language=C, numbers=none]
 MXTensor : Tensor{
 public:
@@ -37,8 +37,8 @@ protected:
   NDArray* tensor_;  // the pointer address to the data from MXNet
 }
 \end{lstlisting}
-\subsection{在horovod上实现bf16}
-由第二章介绍可知，bf16计算需要硬件支持，目前只有google的TPU支持该计算，对应地tensorflow对其支持。但其他主流框架如pytorch，mxnet没有完全支持bf16的数据格式，故目前bf16只能作为一种数据压缩方式用于分布式深度学习训练中。基于mxnet，在horovod上实现bf16数据通信的方法主要包含三部分：1.继承horovod提供的Tensor，设计bf16 Tensor供horovod调用；2.实现一个自定义的bf16求和函数，供MPI做allreduce时对bf16数据求和时使用；3.在对bf16做完allreduce后，将bf16数据转换成fp32数据返回给MXNet。\\
+\subsection{bf16数据同步方法}
+由第二章介绍可知，bf16计算需要硬件支持，目前只有google的TPU支持该计算，对应地tensorflow对其支持。但其他主流框架如pytorch，MXNet没有完全支持bf16的数据格式，故目前bf16只能作为一种数据压缩方式用于分布式深度学习训练中。基于MXNet，在horovod上实现bf16数据通信的方法主要包含三部分：1.继承horovod提供的Tensor，设计bf16 Tensor供horovod调用；2.实现一个自定义的bf16求和函数，供MPI做allreduce时对bf16数据求和时使用；3.在对bf16做完allreduce后，将bf16数据转换成fp32数据返回给MXNet。\\
 针对以上三部分内容，具体设计如下所示：
 \begin{lstlisting}[language=C, numbers=none]
 // 1. bf16 tensor defination
@@ -75,6 +75,8 @@ void callback() {
         handle_manager.ExecuteCallback(handle);
       }
 \end{lstlisting}
+\section{bf16数据同步算法实现与优化}
+
 \section{性能优化}
 为减小fp32数据与bf16数据的转换开销，提高bf16 sum中计算效率，我们通过使用instrinsic指令直接操作数据完成数据转换和计算。针对不同情况，进行了最优实现，使用AVX512指令进行转换的实现如下所示：
 \begin{lstlisting}[language=C, numbers=none]
@@ -116,8 +118,6 @@ inline void convert_b16_to_f32(const void* src, void* dst)
       \hline
     \end{tabularx}\\[2pt]
     \footnotesize
-    *：东部\\
-    **：西部
   \end{minipage}
 \end{table}
 
