@@ -59,7 +59,7 @@
 
 \begin{figure}[htp]
 \centering
-\includegraphics[width=10cm]{simulate_9bits_acc2}
+\includegraphics[width=13cm]{simulate_9bits_acc2}
 \caption{9比特梯度压缩方法与原始浮点数表示训练精度曲线}
 \label{fig:simulate_9bits_acc}
 \end{figure}
@@ -67,7 +67,7 @@
 在SSD中使用该压缩算法训练，其精度与原始网络训练精度差距较大，在保留2位尾数，1位尾数，去除所有尾数情况下，SSD的收敛曲线如图~\ref{fig:simulate_9bits_ssd_acc}所示。可知，在11比特压缩方法下，SSD的收敛精度已经与原始浮点数训练精度有一定差距。说明物体检测网络对梯度精度要求要高于图像分类网络。随着尾数位的不断减少，SSD的收敛精度也越来越低。
 \begin{figure}[htp]
 \centering
-\includegraphics[width=10cm]{simulate_9bits_ssd_acc}
+\includegraphics[width=12cm]{simulate_9bits_ssd_acc}
 \caption{SSD在不同比特压缩算法下mAP曲线}
 \label{fig:simulate_9bits_ssd_acc}
 \end{figure}
@@ -110,7 +110,7 @@ FP32 & 76.12 & 64.00 \\
 在4节点8实例情况下，使用该方法将梯度数据压缩成单字节数据，resnet50的收敛曲线如图~\ref{fig:simulate_8bits_acc}所示。可知本节提出的8比特梯度压缩方法同样能达到原始训练精度:76.1\%，说明本节提出的压缩方法可在不影响分类网络精度情况下，减小分布式训练神经网络中的通信量，从而提升分布式训练效率。
 \begin{figure}[htp]
 \centering
-\includegraphics[width=10cm]{simulate_8bits_acc2}
+\includegraphics[width=13cm]{simulate_8bits_acc2}
 \caption{8比特位梯度压缩方法与原始浮点数表示resnet50精度曲线}
 \label{fig:simulate_8bits_acc}
 \end{figure}
@@ -118,7 +118,7 @@ FP32 & 76.12 & 64.00 \\
 物体检测网络SSD在该压缩方法下mAP曲线如图~\ref{fig:simulate_8bits_ssd_acc}所示。可知SSD网络在本节8比特梯度压缩算法下最终mAP为59.78\%,与原始浮点数训练的结果：64.00\%差距较大。造成SSD训练精度的损失来自于尾数位精度的降低，其原因与9比特梯度压缩算法造成SSD训练精度下降的原因相同。说明本节提出的8比特梯度压缩方法在图像分类网络训练中不会对训练精度造成影响，可将该压缩算法用于分布式训练分类网，以提升训练效率。但因为物体检测网络对梯度精度要求较高，本节提出的8比特梯度压缩算法不能保证物体检测网络的训练精度，不适用于物体检测网络。
 \begin{figure}[htp]
 \centering
-\includegraphics[width=10cm]{simulate_8bits_ssd_acc}
+\includegraphics[width=12cm]{simulate_8bits_ssd_acc}
 \caption{8比特位梯度压缩方法与原始浮点数表示SSD mAP曲线}
 \label{fig:simulate_8bits_ssd_acc}
 \end{figure}

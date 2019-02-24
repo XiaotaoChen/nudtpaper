@@ -5,7 +5,7 @@
 
 \begin{figure}[htp]
 \centering
-\includegraphics[width=10cm]{data_model_parallel}
+\includegraphics[width=13cm]{data_model_parallel}
 \caption{数据并行（左）与模型并行（右）示意图}
 \label{fig:data_model_parallel}
 \end{figure}
@@ -23,7 +23,7 @@ AlexNet\upcite{alexnet2012}，将卷积神经网络用于图像分类的开山�
 
 \begin{figure}[htp]
 \centering
-\includegraphics[width=10cm]{AlexNet}
+\includegraphics[width=13cm]{AlexNet}
 \caption{AlexNet网络结构示意图}
 \label{fig:AlexNet}
 \end{figure}
@@ -33,7 +33,7 @@ AlexNet\upcite{alexnet2012}，将卷积神经网络用于图像分类的开山�
 
 \begin{figure}[htp]
 \centering
-\includegraphics[width=10cm]{inception_picture}
+\includegraphics[width=12cm]{inception_picture}
 \caption{inception module结构示意图}
 \label{fig:inception_picture}
 \end{figure}
@@ -51,7 +51,7 @@ AlexNet\upcite{alexnet2012}，将卷积神经网络用于图像分类的开山�
 
 \begin{figure}[htp]
 \centering
-\includegraphics[width=10cm]{DenseNet_picture}
+\includegraphics[width=12cm]{DenseNet_picture}
 \caption{DenseNet结构示意图}
 \label{fig:DenseNet_picture}
 \end{figure}
@@ -61,7 +61,7 @@ AlexNet\upcite{alexnet2012}，将卷积神经网络用于图像分类的开山�
 
 \begin{figure}[htp]
 \centering
-\includegraphics[width=10cm]{mobilenet}
+\includegraphics[width=12cm]{mobilenet}
 \caption{传统conv+BN+Relu（左）与depthwise separable conv（右）示意图}
 \label{fig:mobilenet}
 \end{figure}
@@ -69,7 +69,7 @@ AlexNet\upcite{alexnet2012}，将卷积神经网络用于图像分类的开山�
 
 \begin{figure}[htp]
 \centering
-\includegraphics[width=10cm]{shufflenet}
+\includegraphics[width=14cm]{shufflenet}
 \caption{bottleneck单元（a）组卷积单元（b）stride=2的组卷积单元（c）示意图}
 \label{fig:shufflenet}
 \end{figure}
@@ -80,7 +80,7 @@ AlexNet\upcite{alexnet2012}，将卷积神经网络用于图像分类的开山�
 
 \begin{figure}[htp]
 \centering
-\includegraphics[width=10cm]{rcnn_overview}
+\includegraphics[width=12cm]{rcnn_overview}
 \caption{R-CNN算法流程图}
 \label{fig:rcnn_overview}
 \end{figure}
@@ -114,7 +114,7 @@ AlexNet\upcite{alexnet2012}，将卷积神经网络用于图像分类的开山�
 
 \begin{figure}[htp]
 \centering
-\includegraphics[width=10cm]{yolo}
+\includegraphics[width=14cm]{yolo}
 \caption{yolo网络结构图}
 \label{fig:yolo}
 \end{figure}
@@ -122,7 +122,7 @@ AlexNet\upcite{alexnet2012}，将卷积神经网络用于图像分类的开山�
 
 \begin{figure}[htp]
 \centering
-\includegraphics[width=10cm]{ssd}
+\includegraphics[width=14cm]{ssd}
 \caption{ssd网络结构图}
 \label{fig:ssd}
 \end{figure}
@@ -131,7 +131,7 @@ AlexNet\upcite{alexnet2012}，将卷积神经网络用于图像分类的开山�
 
 \begin{figure}[htp]
 \centering
-\includegraphics[width=10cm]{gnmt}
+\includegraphics[width=14cm]{gnmt}
 \caption{gnmt网络结构图}
 \label{fig:gnmt}
 \end{figure}
@@ -145,7 +145,7 @@ AlexNet\upcite{alexnet2012}，将卷积神经网络用于图像分类的开山�
 
 \begin{figure}[htp]
 \centering
-\includegraphics[width=10cm]{ssp_picture}
+\includegraphics[width=12cm]{ssp_picture}
 \caption{SSP模型示意图}
 \label{fig:ssp_picture}
 \end{figure}
@@ -163,7 +163,7 @@ AlexNet\upcite{alexnet2012}，将卷积神经网络用于图像分类的开山�
 
 \begin{figure}[htp]
 \centering
-\includegraphics[width=10cm]{a_bsp}
+\includegraphics[width=12cm]{a_bsp}
 \caption{bsp，a-bsp，ssp示意图}
 \label{fig:a_bsp}
 \end{figure}
@@ -181,7 +181,7 @@ AlexNet\upcite{alexnet2012}，将卷积神经网络用于图像分类的开山�
 
 \begin{figure}[htp]
 \centering
-\includegraphics[width=10cm]{poseidon_result}
+\includegraphics[width=14cm]{poseidon_result}
 \caption{Poseidon实验对比图}
 \label{fig:poseidon_result}
 \end{figure}
@@ -193,7 +193,7 @@ AlexNet\upcite{alexnet2012}，将卷积神经网络用于图像分类的开山�
 
 \begin{figure}[htp]
 \centering
-\includegraphics[width=10cm]{training1hour_result}
+\includegraphics[width=12cm]{training1hour_result}
 \caption{线性增大学习率和热启动方法下不同batch size下模型精度曲线}
 \label{fig:training1hour_result}
 \end{figure}
@@ -207,7 +207,7 @@ AlexNet\upcite{alexnet2012}，将卷积神经网络用于图像分类的开山�
 2018年，Yujun Lin等\upcite{dgc2018}提出稀疏化梯度的方法。即每次只更新前0.1\%-1\%的梯度，极大减少了网络带宽，压缩比能达到600倍。剩下99.9\%未更新的梯度保留在本地，随着迭代的进行依次累加，直到该梯度达到前0.1\%~1\%后更新。论文解释这种将梯度保留在本地的方法，类似于增大batch size。提出动量修正，梯度修剪，动量因子隐蔽，热启动等方法保证压缩后梯度的精度和延迟更新梯度的影响。其中动量修正示意图如图~\ref{fig:dgc_picture}所示。
 \begin{figure}[htp]
 \centering
-\includegraphics[width=10cm]{dgc_picture}
+\includegraphics[width=14cm]{dgc_picture}
 \caption{动量修正原理示意图}
 \label{fig:dgc_picture}
 \end{figure}
