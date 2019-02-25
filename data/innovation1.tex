@@ -1,7 +1,7 @@
-\chapter{高效低精度更新算法}
-本章主要介绍高效低精度更新（ELPU）算法的实现原理。并详细介绍整个框架工作流程和性能优化的相关方法。通过分析不同应用的理论效率和实际效率结果，评估系统的性能。
+\chapter{低精度分布式更新算法}
+本章主要介绍低精度分布式更新（LPDU）算法的实现原理。并详细介绍整个框架工作流程和性能优化的相关方法。通过分析不同应用的理论效率和实际效率结果，评估系统的性能。
 \section{引言}
-随着人工智能的快速发展，为提升训练效率，满足生产需求，业界已针对分布式深度学习系统进行了深入的研究。本章提出的高效低精度更新（ELPU）算法希望通过压缩模型梯度数据的方式来减少分布式同步数据过程中的数据传输量，从而减小同步时间开销，提高分布式训练效率。本章将介绍如何在现有高效的分布式通信框架horovod上集成现有主流的深度学习框架，并进一步实现BF16更新算法；介绍相关的优化方法，最后通过理论分析和实验结果比较，说明BF16更新算法的有效性和实用性。
+随着人工智能的快速发展，为提升训练效率，满足生产需求，业界已针对分布式深度学习系统进行了深入的研究。本章提出的LPDU算法希望通过低精度数据通信方法来减少分布式同步数据过程中的数据传输量，从而减小同步时间开销，提高分布式训练效率；同时，为保证神经网络的训练精度，本文使用混合精度更新方法对网络进行更新。本章将介绍如何在现有高效的分布式通信框架horovod上集成现有主流的深度学习框架，并进一步实现LPDU算法，分析低精度数据通信相对于原始浮点数通信的缺点，以及对应的改进方法；并介绍相关的优化方法，最后通过理论分析和实验结果比较，说明LPDU算法的有效性和实用性。
 \section{MXNet与Horovod的整合}
 horovod是uber针对tensorflow在分布式深度学习训练中的不足，基于百度提出的ring-allreduce构建。有3个主要特征：
 
@@ -46,8 +46,58 @@ protected:
 }
 \end{lstlisting}
 
-\section{BF16分布式更新算法与优化}
-\subsection{BF16分布式更新算法设计}
+\section{LPDU算法的设计与实现}
+LPDU算法主要包含两部分：低精度数据通信和混合精度更新。低精度数据通信部分旨在减少分布式训练过程中的同步通信开销，从而提升分布式训练效率；混合精度更新部分则是为避免低精度数据表示造成的数据精度损失，将同步后的低精度梯度数据转换为原始浮点数，再对网络进行更新，而不是直接使用低精度梯度数据进行更新，减小了更新过程中的数据损失，使用该方法可保证在低精度数据通信情况下神经网络训练精度达到原始浮点数训练的相同精度。
+\subsection{低精度数据通信算法}
+%分析在训练过程中梯度的分布范围。确定在该范围内，浮点数与bf16数据的精度差距。
+
+由2.1部分可知，相对于单机训练，分布式训练多了额外的同步通信开销，其对分布式训练效率的高低有至关重要的作用。结合业界对低精度数据在神经网络中的研究进展，本节提出一种高效的低精度数据通信方法，在混合精度更新算法配合下，能在不损失神经网络训练精度的情况下，提升分布式训练效率。
+
+算法核心思路是：使用BF16数据格式进行通信，相对于浮点数通信减少了一半数据量，从而提升训练效率。根据业界对低精度数据在神经网络中的研究进展可知，目前主要有两种低精度数据格式用于神经网络训练，分别是半精度浮点数（FP16）和bfloat16（BF16）数据格式。两种在表示数值范围和精度上均有不同程度的损失，通过对应的改进方法，可保证低精度数据下神经网络的训练精度达到原始浮点数训练相同精度。
+
+考虑到FP16与BF16数据格式的特点，BF16数据格式与浮点数之间的转换开销较小，且其可表示的数值范围与浮点数基本相同，故不需要考虑FP16表示情况下梯度数据超过数值表示范围的问题。基于以上两种原因，LPDU算法采用BF16格式数据进行通信，下面介绍基于BF16格式的低精度数据通信算法的具体实现。
+
+基于BF16格式的低精度数据通信算法的实现主要包含两部分：1.在同步之前将原始浮点数转换成BF16格式数据；2.对BF16格式的梯度数据进行同步，求得全局梯度。本文在horovod基础上对低精度数据通信算法进行实现，具体工作包括：1.继承horovod提供的Tensor类，设计BF16 Tensor，供horovod调用，其需要完成原始浮点数到BF16格式数据的转换工作；2.实现一个自定义的BF16求和函数，供MPI在做allreduce过程中对BF16数据求和使用。
+
+针对以上两部分内容，具体设计如下所示。在MXTensor基础上，添加了新的BF16指针，用于存放BF16数据。在构造函数中，将深度学习框架传入的FP32的数据转换成BF16数据。针对第二点BF16的求和函数的实现。因为目前没有BF16的硬件计算单元，求和计算只能在浮点计算单元上计算。由下BF16 sum函数可知，函数主要分为三部分：1.将BF16数据转换为浮点数；2.对浮点数据进行求和；3.将求和后的浮点数结果转换为BF16数据。
+
+\begin{lstlisting}[language=C, numbers=none]
+// 1. bf16 tensor defination
+MXBF16Tensor: MXTensor {
+public:
+  MXBF16Tensor(NDArray* tensor):MXTensor(tensor){
+  // according the count of tensor elements allocate memory to store bf16 data;
+  // convert source data of tensor to bf16 data format
+}
+  source_data();   // return the source pointer of NDArray;
+  // override the 3 APIs as below:
+  dtype();  // return bf16 flag;
+  data();    // return data pointer of bf16;
+  size();     // return the total bytes of bf16 data;
+  private:
+  unsigned short* bf16dptr_;
+}
+
+// 2. implement bf16 sum according MPI_op define
+void bf16_sum(void* invec, void* inoutvec, int* len, MPI_Datatype* datatype) {
+  for(int i = 0; i < *len; i++) {
+    float tmp_in = convert_bf16_to_fp32(invec[i]);
+    float tmp_out = convert_bf16_to_fp32(inoutvec[i]);
+    tmp_out += tmp_in;
+    inoutvec[i] = convert_fp32_to_bf16(tmp_out);
+  }
+}
+\end{lstlisting}
+
+
+\subsection{混合精度更新算法}
+由表1.2可知，BF16格式数据有效数字仅有2～3位，相对于FP32格式数据存在一定精度损失。由随机梯度下降（SGD）更新算法公式3.1可知，SGD将当前梯度乘以学习率$\eta$,再将值更新到模型参数$W$中。通常情况下$\eta$是一个小于0的数，并随着
+$$W_{t+1,i}=W_{t,i}-\eta*g_{t,i}$$
+
+为防止数据精度在更新过程中造成进一步的损失，本章提出混合精度更新算法。将同步后的低精度梯度数据转换为浮点数，再使用该浮点梯度数据对模型进行更新。实验证明混合精度更新算法能够保证在低精度数据通信方式下，神经网络的训练精度能达到原始浮点数训练相同精度。
+
+
+\subsection{LPDU算法设计}
 由3.2部分可知，horovod通过继承深度学习框架的优化器实现自定义的分布式优化器DistributedOptimizer达到同步更新的目的。其中DistributedOptimizer的分布式更新算法如算法~\ref{alg:fp32_update}所示。为同步全局梯度，其在调用更新算法之前使用allreduce同步全局梯度，再用全局同步后的梯度更新本地参数，更新后的参数即全局参数。
 
 \begin{algorithm}\small
@@ -82,7 +132,7 @@ protected:
 	\label{alg:bf16_update}
 \end{algorithm}
 
-\subsection{BF16分布式更新算法实现}
+\subsection{LPDU算法实现}
 基于horovod实现BF16数据同步的分布式更新算法主要包含三部分：1.继承horovod提供的Tensor，设计BF16 Tensor供horovod调用；2.实现一个自定义的BF16求和函数，供MPI做allreduce时对BF16数据求和时使用；3.在对BF16做完allreduce后，将BF16数据转换成FP32数据返回给分布式优化器DistriubtedOptimizer进行全局更新。
 
 针对以上三部分内容，具体设计如下所示。在MXTensor基础上，添加了新的BF16指针，用于存放BF16数据。在构造函数中，将深度学习框架传入的FP32的数据转换成BF16数据。针对第二点BF16的求和函数的实现。因为目前没有BF16的硬件计算单元，求和计算只能在浮点计算单元上计算。由下BF16 sum函数可知，函数主要分为三部分：1.将BF16数据转换为浮点数；2.对浮点数据进行求和；3.将求和后的浮点数结果转换为BF16数据。针对第三点，通过在callback函数中添加BF16数据转换到浮点数的过程达到在BF16数据完成allreduce后，将BF16数据转换为FP32数据返回给分布式优化器DistriubtedOptimizer的目的。

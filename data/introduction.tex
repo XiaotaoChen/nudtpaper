@@ -59,16 +59,16 @@ BF16 & 16 & 1 & 8 & 7\\
 
 \begin{table}[htb]
 \centering
-\noindent\begin{minipage}{0.45\textwidth}
+\noindent\begin{minipage}{0.5\textwidth}
 \centering
-\caption{不同数据格式最小精度}
+\caption{不同数据格式数据精度和有效数字位}
 \label{tab:diff_format_precision}
-\begin{tabular}{p{2cm}p{2cm}}
+\begin{tabular}{p{2cm}p{2cm}p{3.5cm}}
 \toprule[1.5pt]
-数据格式 & 数据精度 \\\midrule[1pt]
-FP32 & 0.00000012 \\
-FP16 & 0.00390625 \\
-BF16 & 0.03125000 \\
+数据格式 & 数据精度 & 有效数字位（十进制）\\\midrule[1pt]
+FP32 & 0.00000012 & 6～7\\
+FP16 & 0.00097656 & 3～4\\
+BF16 & 0.00781250 & 2～3 \\
 \midrule[1pt]
 \end{tabular}
 \end{minipage}
