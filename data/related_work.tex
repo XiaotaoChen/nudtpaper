@@ -80,7 +80,12 @@ AlexNet\upcite{alexnet2012}，将卷积神经网络用于图像分类的开山�
 \caption{传统conv+BN+Relu（左）与depthwise separable conv（右）示意图}
 \label{fig:mobilenet}
 \end{figure}
-随后，Xiangyu Zhang等\upcite{shufflenet2018}提出ShuffleNet，进一步减小了网络计算量。在相同计算量情况下，网络性能达到最好情况。其核心思想是把pointwise convolution进行分组，根据卷积计算公式可知，分组越多，计算量越少，通道间信息传递也越少。为了使通道间信息能更好的融合，论文提出shuffle的方式将各层通道的信息进行融合，示意图如图~\ref{fig:shufflenet}所示。其主要包含两个步骤：一是对pointwise做分组卷积；二是对分组后的卷积在通道之间做shuffle，以保证通道间的信息融合。
+随后，Xiangyu Zhang等\upcite{shufflenet2018}提出ShuffleNet，进一步减小了网络计算量。在相同计算量情况下，网络性能达到最好情况。其核心思想是把pointwise convolution进行分组。假设网络输入通道数为$N$，输出通道数为$M$，特征图大小不变,长宽均为$D_{F}$，将pointwise convolution分为$g$组，则其计算量为$(\frac{N}{g}\times\frac{M}{g})\times g\times D_{F}\times D_{F}$，原始计算量为$N\times M\times D_{F}\times D_{F}$。可知分组后计算量相对于原始计算量比值如公式~\ref{equ:shufflenet_equ}所示，减少为原来的$\frac{1}{g}$。分组越多，计算量越少，通道间信息传递也越少。为了使通道间信息能更好的融合，论文提出shuffle的方式将各层通道的信息进行融合，示意图如图~\ref{fig:shufflenet}所示。其主要包含两个步骤：一是对pointwise做分组卷积；二是对分组后的卷积在通道之间做shuffle，以保证通道间的信息融合。
+
+\begin{equation}
+\label{equ:shufflenet_equ}
+\frac{(\frac{N}{g}\times\frac{M}{g})\times g\times D_{F}\times D_{F}}{N\times M\times D_{F}\times D_{F}}=\frac{1}{g}
+\end{equation}
 
 \begin{figure}[htp]
 \centering
@@ -133,7 +138,7 @@ AlexNet\upcite{alexnet2012}，将卷积神经网络用于图像分类的开山�
 \caption{yolo网络结构图}
 \label{fig:yolo}
 \end{figure}
-同年Wei Liu等提出SSD网络\upcite{ssd2016}，结合了Faster R-CNN和yolo的优点,采用了Faster R-CNN的anchors机制，同时是和yolo相同的一阶段检测方法。网络结构如图~\ref{fig:ssd}所示。其使用不同层的feature map预测不同的大小的框，不同层的feature map可以预测不同大小的物体，达到预测不同大小物体的目的。
+同年Wei Liu等提出SSD网络\upcite{ssd2016}，结合了Faster R-CNN和yolo的优点,采用了Faster R-CNN的anchors机制，同时是和yolo相同的一阶段检测方法。网络结构如图~\ref{fig:ssd}所示。其使用不同层的feature map预测不同大小的框，不同层的feature map可以预测不同大小的物体，达到预测不同大小物体的目的。
 
 \begin{figure}[htp]
 \centering
@@ -154,9 +159,9 @@ AlexNet\upcite{alexnet2012}，将卷积神经网络用于图像分类的开山�
 \section{分布式深度学习的发展}
 分布式深度学习涉及到的领域很广。涵盖优化算法、模型、系统和应用等。下面分别介绍以下三个方向的研究进展：分布式系统、优化算法和数据压缩。
 \subsection{分布式深度学习系统的发展}
-自2012年底AlexNet\upcite{alexnet2012}在ImageNet上大放异彩，刷新诸多记录，从此开启了深度学习的新篇章。同年，对应的分布式深度学习系统也应运而生。Jeffrey Dean等提出的DistBelief\upcite{distbelief2012}，即Google的第一代深度学习系统，其核心实现是把分布式机器学习里面的数据并行(data parallelism)和模型并行(model parallelism)用在深度学习上，通过这两种并行方法把深度学习大规模部署到集群。同时，论文提出了分布式异步SGD—DownPour SGD和L-BFGS算法，在CPU集群上系统效果显著。
+自2012年底AlexNet\upcite{alexnet2012}在ImageNet上大放异彩，刷新诸多记录，从此开启了深度学习的新篇章。同年，对应的分布式深度学习系统也应运而生。Jeffrey Dean等提出的DistBelief\upcite{distbelief2012}，即Google的第一代深度学习系统，其核心实现是把分布式机器学习里面的数据并行(data parallelism)和模型并行(model parallelism)用在深度学习上，通过这两种并行方法把深度学习大规模部署到集群。同时，论文提出了分布式异步SGD：DownPour SGD和L-BFGS算法，在CPU集群上系统效果显著。
 
-随后，考虑到分布式训练网络过程中的同步通信开销，Qirong Ho等\upcite{ssp2013}提出了松弛一致性模型:Stale Synchronous Parallel(SSP), 如图~\ref{fig:ssp_picture}所示。解决了严格同步(BSP)模型下木桶效应导致同步时间过长的问题，提高了计算效率。并基于该模型，搭建了Petuum系统。
+随后，考虑到分布式训练网络过程中的同步通信开销，Qirong Ho等\upcite{ssp2013}提出了松弛一致性模型：Stale Synchronous Parallel(SSP)，如图~\ref{fig:ssp_picture}所示。解决了严格同步(BSP)模型下木桶效应导致同步时间过长的问题，提高了计算效率。并基于该模型，搭建了Petuum系统。
 
 \begin{figure}[htp]
 \centering
@@ -196,7 +201,7 @@ x^{i}_{t+1}=x^i_t-\eta(g^i_t(x^i_t)+\rho(x^i_t-\widetilde x))
 
 同时，Ioannis Mitliagkas等\upcite{asynmomentum2016}也在2016年提出一种通过调整momentum的值抵消异步更新梯度与全局实际梯度的差距。其设计思想是在异步SGD的情况下，每个worker求得的梯度并不是当前系统中最新权重的梯度，是相对较老权重的梯度，最新的权重梯度和计算出较老权重的梯度之间的差距实际上是一种隐含的动量。所以当使用异步SGD时，可以适当减小优化器中的momentum，因为异步SGD情况下本身就带有部分momentum，异步程度越大，即worker节点数越多，这种隐含的momentum就越大，此时优化器的momentum就应该越小。甚至优化器的momentum可以为负数，来抵消隐含momentum过大的影响。
 
-该论文对异步更新方法提供了一种比较新奇的理解方式，但实际上关注点和EASGD，gossiping SGD是一致的，都是关注较老的参数与最新参数之间的差值。只不过EASGD，gossiping SGD是在worker的参数时，除了减去梯度，还减去了较老的参数与最新参数的差值。而本文虽然仅仅减去梯度，但通过调整momentum来弥补该梯度的不准确性。
+该论文对异步更新方法提供了一种比较新奇的理解方式，但实际上关注点和EASGD，gossiping SGD是一致的，都是关注较老的参数与最新参数之间的差值。只不过EASGD，gossiping SGD是在worker的参数时，除了减去梯度，还减去了较老的参数与最新参数的差值。而论文虽然仅仅减去梯度，但通过调整momentum来弥补该梯度的不准确性。
 
 由于在大部分神经网络中异步更新算法无法满足程序精度要求，实际应用中往往使用严格同步的更新算法保证训练精度。下面是同步更新算法的相关研究进展。
 
@@ -210,7 +215,7 @@ x^{i}_{t+1}=x^i_t-\eta(g^i_t(x^i_t)+\rho(x^i_t-\widetilde x))
 \end{figure}
 由图~\ref{fig:poseidon_result}对比TF与TF+WFBP可知，WFBP算法对性能提升有巨大帮助，在参数量相对较小的网络（如inception-V3）中该算法即可保证网络达到近线性加速比。而在网络参数量较大，特别是全连接层参数量较大时，单使用WFBP算法不足以压缩同步参数的时间开销。因为全连接层计算量小而参数量大，使其对无法通过WFBP算法将通信延时隐藏在全连接层的反向计算中。而SFB算法正好解决了该问题。通过将全连接层M*N个参数分解成M+N个参数，极大减少了参数传输量。所以在全连接层占比较大的网络中，如VGG19，VGG19-22k等，加上SFB算法后分布式效率能接近理想加速比。
 
-同年，Jianmin Chen等\upcite{bucketsgd2017}提出通过提供少量计算节点备份以缓解严格同步形成的木桶效应。论文首先通过大量实验验证了异步算法在神经网络训练中不能保证模型精度的问题，所以为保证训练精度应使用严格同步的优化算法。但是严格同步则导致每次迭代时间受计算最慢的机器的影响，随着集群增大，影响会越来越明显，为了避免这个影响，论文提出使用少量备份节点来减缓最慢机器导致的影响。假设集群中有53个计算节点同时计算，当server端接收到50个梯度后，就同步更新，剩下最慢的3个终止该次计算，这样能有效减少最慢的时间等待。这种通过备份节点来缓解木桶效应带来的影响具有非常好的启发意义。同时论文也提出下一步工作：用time-out，代替backup节点的想法要跟进。当80\%的梯度到达时，就更新参数，以这80\%的梯度代替所有的梯度进行更新。
+同年，Jianmin Chen等\upcite{bucketsgd2017}提出通过提供少量计算节点备份以缓解严格同步造成的木桶效应。论文首先通过大量实验验证了异步算法在神经网络训练中不能保证模型精度的问题，所以为保证训练精度应使用严格同步的优化算法。但是严格同步则导致每次迭代时间受计算最慢的机器的影响，随着集群增大，影响会越来越明显，为了避免这个影响，论文提出使用少量备份节点来减缓最慢机器导致的影响。假设集群中有53个计算节点同时计算，当server端接收到50个梯度后，就同步更新，剩下最慢的3个终止该次计算，这样能有效减少最慢的时间等待。这种通过备份节点来缓解木桶效应带来的影响具有非常好的启发意义。同时论文也提出下一步工作：用time-out，代替backup节点的想法要跟进。当80\%的梯度到达时，就更新参数，以这80\%的梯度代替所有的梯度进行更新。
 
 同时，facebook等\upcite{train1hour2017}在Training ImageNet in 1 hour中提出两个简单且极为有效的调整学习率的方法：线性增大学习率和热启动方法。首先论文从sgd算法意义出发，从公式中推导出：当增大batch size时，线性增大学习率情况下，公式与原始batch size下的含义相同。同时在实际训练过程中，因为刚开始网络状态受初始化影响较大，且训练初期网络状态波动很大。学习率过大时，容易造成网络不收敛，故在训练刚开始阶段提出使用热启动的训练方法，从一个较小的学习率逐渐增长至线性增大策略所要求的学习率。实验结果如图~\ref{fig:training1hour_result}所示。
 
