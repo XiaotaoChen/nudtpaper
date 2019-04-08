@@ -3,18 +3,14 @@
 
 如何提高分布式训练神经网络的效率一直受到广泛的关注，本文提出低精度分布式更新算法LPDU，将原始浮点数梯度转换为低精度数据进行传输，减少同步时间开销，进而提升分布式训练效率，通过混合精度更新算法，保证训练精度。通过对比LPDU算法与原始更新算法在图像分类，目标检测任务的相关实验结果,证明了LPDU算法在图像分类与目标检测任务中均能达到与原始更新算法相同的理想精度。同时对分布式训练性能有一定提升。在8节点情况下，Resnet50的训练效率由原始的84.05\%提升到了87.50\%，VGG网络的训练效率相对于原始的79.42\%提升至了86.55\%，SSD网络相对于原始效率有4.83\%的提升。
 
-基于LPDU算法减少梯度尾数位的思路，以及分类网络和物体检测网络对梯度数据精度要求不同的特点，本文针对分类网和物体检测网络提出了两种极限精度梯度压缩方法EPGC：适用于分类网络的8比特梯度压缩方法，适用于物体检测网络的11比特梯度压缩方法。实验证明这两种梯度压缩算法均能保证神经网络在对应任务中的训练精度，说明通过这两种梯度压缩算法提升分布式系统训练效率的可行性。
-
 \end{cabstract}
-\ckeywords{神经网络; 分布式训练; 低精度; 更新算法; 梯度压缩}
+\ckeywords{神经网络; 分布式训练; 低精度; 更新算法}
 
 \begin{eabstract}
 %In recent years, the artificial intelligence technology based on neural networks has been widely used and developed in academia and industry. As the model size of neural networks and the amount of data required for training increase rapidly, it becomes more difficult to train neural networks in a single machine. The distributed training for neural networks not only greatly shorten the training time, but also provides a solution for some neural networks that cannot be trained in a single machine. In the foreseeable future, the distributed training for neural networks is an inevitable choice. How to improve the efficiency and scalability of distributed training for neural networks is particularly important.
 
 The efficiency of distributed training neural networks has been widely concerned. This paper proposed a low-precision distributed update (LPDU) algorithm to improve the efficiency. The LPDU algorithm converts the original floating-point gradient into low-precision data format for transmission, and reduces the overhead of synchronization and improves the efficiency of distributed training. The Mixed precision update (MPU) algorithm can ensure the training accuracy. According to the training accuracy curves between the LPDU algorithm and the original update algorithm, it proves that the LPDU algorithm can reach to the same accuracy as the original update algorithm in image classification and object detection tasks. And the efficiency of distributed training has been improved. In the case of 8 nodes training, the efficiency of Resnet50 has increased from 84.05 \% to 87.50\%. The training efficiency of the VGG has increased to 86.55\%, whose original accuracy is 79.42\%. And the SSD network has increased by 4.83\% compared with the original efficiency.
 
-Based on the idea of LPDU algorithm that reduces the mantissa of gradient, and the different requirements for the precision of the gradient between classification networks and object detection networks, two extreme precision gradient compression (EPGC) algorithms are proposed: 8-bits gradient compression algorithm for classification networks training, 11-bits gradient compression algorithm for object detection networks training. Experiments show that the two gradient compression algorithms can guarantee the training accuracy of neural networks in classification or object detection tasks. It is feasible to improve the efficiency of distributed training with these two gradient compression algorithms.
-
 \end{eabstract}
-\ekeywords{neural network; distributed training; low precision; update algorithm; gradient compression}
+\ekeywords{neural network; distributed training; low precision; update algorithm}
 
