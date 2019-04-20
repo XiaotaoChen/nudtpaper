@@ -578,9 +578,9 @@
   \end{tabular}}
   \vfill\vfill\vfill\vfill
   {\sanhao[1.5]
-A dissertation\\
+A thesis\\
 Submitted in partial fulfillment of the requirements\\
-for the degree of \textsf{\@optionpaperclassen{} of \@enpapertype}\\
+for the professional degree of \textsf{\@optionpaperclassen{} of \@enpapertype}\\
 in \textsf{\@ensubject}\\
 \makebox[\textwidth]{\ifisanon{~}\else{Graduate School of National University of %
 Defense Technology}\fi}\\
