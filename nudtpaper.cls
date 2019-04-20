@@ -412,16 +412,15 @@
     \setlength{\listparindent}{0pt} % 段落缩进量
     \setlength{\topsep}{0pt} % 标签与上文的间距
 }}{\end{list}}
-\newenvironment{ack}{%
-    \chapter*{致\hspace{1em}谢}%
-    \addcontentsline{toc}{chapter}{致谢}%
-    \ifisanon\color{white}\else\relax\fi%
-    \xiaosi%
-    \@afterheading}
-    {\par\vspace{2em}\par}
 \newenvironment{last_words}{%
     \chapter*{结\hspace{1em}束\hspace{1em}语}%
     \addcontentsline{toc}{chapter}{结束语}%
+    \xiaosi%
+    \@afterheading}
+    {\par\vspace{2em}\par}
+\newenvironment{ack}{%
+    \chapter*{致\hspace{1em}谢}%
+    \addcontentsline{toc}{chapter}{致谢}%
     \ifisanon\color{white}\else\relax\fi%
     \xiaosi%
     \@afterheading}
