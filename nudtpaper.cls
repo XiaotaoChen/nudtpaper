@@ -419,6 +419,13 @@
     \xiaosi%
     \@afterheading}
     {\par\vspace{2em}\par}
+\newenvironment{last_words}{%
+    \chapter*{结\hspace{1em}束\hspace{1em}语}%
+    \addcontentsline{toc}{chapter}{结束语}%
+    \ifisanon\color{white}\else\relax\fi%
+    \xiaosi%
+    \@afterheading}
+    {\par\vspace{2em}\par}
 \newenvironment{resume}{%
     \chapter*{作者在学期间取得的学术成果}
     \addcontentsline{toc}{chapter}{作者在学期间取得的学术成果}
